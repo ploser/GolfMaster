@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
-namespace Rebirth.Events
+namespace GolfMaster.Events
 {
     public class GameEvent
     {

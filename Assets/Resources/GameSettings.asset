@@ -12,5 +12,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8f89ad444ba82524fa26418b4fd8c3d9, type: 3}
   m_Name: GameSettings
   m_EditorClassIdentifier: 
+  MainSettings:
+    GolfBallCount: 100
+    ReachDistanceForGolfBall: 0.75
+    LowPoint: 5
+    MediumPoint: 10
+    HighPoint: 15
   PlayerSettings:
     PlayerSpeed: 5
+    PlayerHealthSpeed: 10

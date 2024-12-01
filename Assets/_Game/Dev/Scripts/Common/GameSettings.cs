@@ -18,12 +18,17 @@ namespace GolfMaster.Common
     [Serializable]
     public class MainSettings
     {
-
+        public int GolfBallCount = 100;
+        public float ReachDistanceForGolfBall = 2f;
+        public int LowPoint = 5;
+        public int MediumPoint = 10;
+        public int HighPoint = 15;
     }
 
     [Serializable]
     public class PlayerSettings
     {
         public float PlayerSpeed = 1;
+        public float PlayerHealthSpeed = 1;
     }
 }
