@@ -20,4 +20,4 @@ MonoBehaviour:
     HighPoint: 15
   PlayerSettings:
     PlayerSpeed: 5
-    PlayerHealthSpeed: 10
+    PlayerHealthSpeed: 5

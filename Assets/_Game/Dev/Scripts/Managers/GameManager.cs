@@ -3,59 +3,45 @@ using GolfMaster.Events;
 using GolfMaster.PlayerObjects;
 using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Unity.VisualScripting;
+using UnityEngine;
 
 namespace GolfMaster.Managers
 {
     public class GameManager : SingleMonoBehaviour<GameManager>
     {
+        [SerializeField] private PlayerController playerPrefab;
+
         public int GameScore { get; set; }
-        public GameState State { get; private set; }
         public PlayerController CurrentPlayer { get; private set; }
 
         private void OnEnable()
         {
-            GameEventManager.On<PlayerStateChanged>(OnPlayerStateChanged);
-            GameEventManager.On<GolfBallCollected>(OnGolfBallCollected);
+            GameEventManager.On<PlayerReturnedToCart>(OnPlayerReturnedToCart, 100);
         }
 
         private void OnDisable()
         {
-            GameEventManager.Off<PlayerStateChanged>(OnPlayerStateChanged);
-            GameEventManager.Off<GolfBallCollected>(OnGolfBallCollected);
+            GameEventManager.Off<PlayerReturnedToCart>(OnPlayerReturnedToCart);
         }
 
-        private void Start()
+        public void StartNewGame()
         {
-            ChangeState(GameState.Game);
+            GameScore = 0;
+
+            if (CurrentPlayer == null)
+                CurrentPlayer = Instantiate(playerPrefab);
+
+            GameEventManager.Fire(new GameStarted() { Player = CurrentPlayer });
         }
 
-        public void ChangeState(GameState newState)
+        private void OnPlayerReturnedToCart(PlayerReturnedToCart e)
         {
-            var oldState = State;
-            State = newState;
-
-            GameEventManager.Fire(new GameStateChanged()
-            {
-                OldState = oldState,
-                NewState = newState
-            });
-        }
-
-        private void OnPlayerStateChanged(PlayerStateChanged e)
-        {
-            if (e.NewState == PlayerState.Ready)
-                CurrentPlayer = e.Player;
-        }
-
-        private void OnGolfBallCollected(GolfBallCollected e)
-        {
-            var point = e.Priority == GolfBallPriority.Low ? GameSettings.Instance.MainSettings.LowPoint :
-                        e.Priority == GolfBallPriority.Medium ? GameSettings.Instance.MainSettings.MediumPoint :
-                                                                   GameSettings.Instance.MainSettings.HighPoint;
-            GameScore += point;
+            GameScore += e.CollectedPoint;
         }
     }
 }

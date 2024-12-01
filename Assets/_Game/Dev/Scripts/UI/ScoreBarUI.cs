@@ -11,24 +11,20 @@ using UnityEngine.UI;
 
 namespace GolfMaster.UI
 {
-    public class ScoreUI : MonoBehaviour
+    public class ScoreBarUI : MonoBehaviour
     {
         [SerializeField] private TMP_Text scoreText;
         [SerializeField] private Image scoreImage;
 
-        private void OnEnable()
+        private void Start()
         {
-            GameEventManager.On<GolfBallCollected>(OnGolfBallCollected);
+            GameEventManager.On<PlayerReturnedToCart>(OnPlayerReturnedToCart);
+            GameEventManager.On<GameStarted>(OnGameStarted);
         }
 
-        private void OnDisable()
-        {
-            GameEventManager.Off<GolfBallCollected>(OnGolfBallCollected);
-        }
 
         private void Update()
         {
-            SetScoreText();
             SetSize();
         }
 
@@ -42,9 +38,15 @@ namespace GolfMaster.UI
             scoreImage.transform.localScale = Vector3.Lerp(scoreImage.transform.localScale, Vector3.one, Time.deltaTime);
         }
 
-        private void OnGolfBallCollected(GolfBallCollected e)
+        private void OnPlayerReturnedToCart(PlayerReturnedToCart e)
         {
             scoreImage.transform.localScale = Vector3.one * 1.2f;
+            SetScoreText();
+        }
+
+        private void OnGameStarted(GameStarted e)
+        {
+            SetScoreText();
         }
     }
 }

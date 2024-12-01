@@ -19,7 +19,6 @@ namespace GolfMaster.PlayerObjects
 
         public Transform TargetObject;
 
-        [SerializeField] private Rigidbody attachedRigidBody;
         [SerializeField] private Animator anim;
         [SerializeField] NavMeshAgent agent;
 
@@ -28,8 +27,9 @@ namespace GolfMaster.PlayerObjects
         private Vector3 _targetPosition;
         private Vector3 _startingPoint;
         private GolfBall _targetBall;
-        private int speedHash = Animator.StringToHash("speed");
-        private int gatherHash = Animator.StringToHash("gather");
+        private int _speedHash = Animator.StringToHash("speed");
+        private int _gatherHash = Animator.StringToHash("gather");
+        private int _collectedPoint;
 
         private void Awake()
         {
@@ -38,12 +38,12 @@ namespace GolfMaster.PlayerObjects
 
         private void OnEnable()
         {
-            GameEventManager.On<GameStateChanged>(OnGameStateChanged);
+            GameEventManager.On<GameStarted>(OnGameStarted);
         }
 
         private void OnDisable()
         {
-            GameEventManager.Off<GameStateChanged>(OnGameStateChanged);
+            GameEventManager.Off<GameStarted>(OnGameStarted);
         }
 
         private void Start()
@@ -60,7 +60,7 @@ namespace GolfMaster.PlayerObjects
 
         private void LateUpdate()
         {
-            anim.SetFloat(speedHash, Mathf.Clamp01(_currentSpeed / 2f));
+            anim.SetFloat(_speedHash, Mathf.Clamp01(_currentSpeed / 2f));
         }
 
         private void CheckStates()
@@ -76,7 +76,8 @@ namespace GolfMaster.PlayerObjects
             {
                 if (HasCartReached())
                 {
-                    Renew();
+                    GameEventManager.Fire(new PlayerReturnedToCart() { CollectedPoint = _collectedPoint });
+                    ResetValues();
                     ChangeState(PlayerState.Gathering);
                     SetTarget();
                 }
@@ -116,6 +117,10 @@ namespace GolfMaster.PlayerObjects
                 return;
 
             var gatheringBall = _targetBall;
+            var point = gatheringBall.Priority == GolfBallPriority.Low ? GameSettings.Instance.MainSettings.LowPoint :
+                            gatheringBall.Priority == GolfBallPriority.Medium ? GameSettings.Instance.MainSettings.MediumPoint :
+                                                                        GameSettings.Instance.MainSettings.HighPoint;
+            _collectedPoint += point;
             gatheringBall.Collect();
 
             _targetBall = null;
@@ -129,9 +134,10 @@ namespace GolfMaster.PlayerObjects
             });
         }
 
-        private void Renew()
+        private void ResetValues()
         {
             Health = 100;
+            _collectedPoint = 0;
         }
 
         private void ReturnToCart()
@@ -149,7 +155,6 @@ namespace GolfMaster.PlayerObjects
         private void SetTarget()
         {
             var predictedRange = agent.speed * 0.5f * Health / GameSettings.Instance.PlayerSettings.PlayerHealthSpeed;
-            print(predictedRange);
 
             if (MapManager.Instance.TryGetOptimalBall(this.transform.position, predictedRange, out var ball))
             {
@@ -187,18 +192,17 @@ namespace GolfMaster.PlayerObjects
             this.transform.position = _startingPoint;
         }
 
-        private void OnGameStateChanged(GameStateChanged e)
+        private void OnGameStarted(GameStarted e)
         {
-            if (e.NewState == GameState.Game)
+            ResetValues();
+            GoStartingPoint();
+            ChangeState(PlayerState.Ready);
+
+            this.DelayedCall(0.5f, () =>
             {
-                GoStartingPoint();
-                ChangeState(PlayerState.Ready);
-                this.DelayedCall(0.5f, () =>
-                {
-                    ChangeState(PlayerState.Gathering);
-                    SetTarget();
-                });
-            }
+                ChangeState(PlayerState.Gathering);
+                SetTarget();
+            });
         }
     }
 }

@@ -1,10 +1,4 @@
-﻿public enum GameState
-{
-    Menu,
-    Game,
-}
-
-public enum PlayerState
+﻿public enum PlayerState
 {
     Preparing,
     Ready,

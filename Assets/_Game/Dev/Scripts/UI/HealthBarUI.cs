@@ -11,7 +11,7 @@ using UnityEngine.UI;
 
 namespace GolfMaster.UI
 {
-    public class PlayerHealthUI : MonoBehaviour
+    public class HealthBarUI : MonoBehaviour
     {
         [SerializeField] private TMP_Text healthText;
         [SerializeField] private Image innerHPBar;

@@ -27,12 +27,12 @@ namespace GolfMaster.Managers
 
         private void OnEnable()
         {
-            GameEventManager.On<GameStateChanged>(OnGameStateChanged);
+            GameEventManager.On<GameStarted>(OnGameStarted);
         }
 
         private void OnDisable()
         {
-            GameEventManager.Off<GameStateChanged>(OnGameStateChanged);
+            GameEventManager.Off<GameStarted>(OnGameStarted);
         }
 
         private void GenerateBalls()
@@ -57,7 +57,7 @@ namespace GolfMaster.Managers
 
                 if (CheckBallPosition(randomPoint, ref pos))
                 {
-                    var golfBall = Instantiate(golfBallTemplate, pos, Quaternion.identity, _ballContainer);  
+                    var golfBall = Instantiate(golfBallTemplate, pos, Quaternion.identity, _ballContainer);
                     golfBall.Priority = (GolfBallPriority)priorityEnumList.GetValue(Random.Range(0, priorityEnumList.Length));
                     _currentBalls.Add(golfBall);
                     i++;
@@ -124,12 +124,10 @@ namespace GolfMaster.Managers
             _currentBalls.Add(ball);
         }
 
-        private void OnGameStateChanged(GameStateChanged e)
+        private void OnGameStarted(GameStarted e)
         {
-            if (e.NewState == GameState.Game)
-                GenerateBalls();
-            else
-                CleanBalls();
+            CleanBalls();
+            GenerateBalls();
         }
     }
 }

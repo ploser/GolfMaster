@@ -3,10 +3,9 @@ using UnityEngine;
 
 namespace GolfMaster.Events
 {
-    public class GameStateChanged : GameEvent 
-    {
-        public GameState OldState { get; set; }
-        public GameState NewState { get; set; }
+    public class GameStarted : GameEvent 
+    { 
+       public PlayerController Player { get; set; }
     }
 
     public class PlayerStateChanged : GameEvent
@@ -20,5 +19,10 @@ namespace GolfMaster.Events
     {
         public GolfBallPriority Priority { get; set; }
         public Vector3 Position { get; set; }
+    }
+
+    public class PlayerReturnedToCart : GameEvent
+    {
+        public int CollectedPoint { get; set; }
     }
 }
